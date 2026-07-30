@@ -10,8 +10,9 @@ function to collect the name, amount, category to store in a dictionary
 # For tracking the balance: for each expense, operate the balance by subtract or add according to category
 """
 id = 0
-User_Balance = 0
+User_Balance = 0 # Adding balance for money tracking
 def add_expense(name, amount, category, expenses, id, User_Balance):
+    # category validation
     if category.lower() == "income":
         User_Balance += amount
     elif category.lower() == "spend":
