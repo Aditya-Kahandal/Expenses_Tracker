@@ -9,7 +9,7 @@ function to collect the name, amount, category to store in a dictionary
 
 # For tracking the balance: for each expense, operate the balance by subtract or add according to category
 """
-
+# Function to add expenses
 def add_expense(name, amount, category, expenses, id, User_Balance):
     # category validation
     if category == "income":
@@ -28,12 +28,28 @@ def add_expense(name, amount, category, expenses, id, User_Balance):
     id += 1
     return id,User_Balance
        
+# Function to view transaction
 def viewTransactions(history):
     if history == {}:
         print("\nNo transactions made yet\n")
     else:
         print("\nYour transaction history is as follows:\n",history, "\n")
 
+# Function to delete transaction
+def deleteTransactions(expenses, id, User_Balance):
+    if expenses[id]["category"] == "income":
+        User_Balance -= expenses[id]["amount"]
+    elif expenses[id]["category"] == "spend":
+        User_Balance += expenses[id]["amount"]
+    elif expenses[id]["category"] == "invest_buy":
+        User_Balance += expenses[id]["amount"]
+    elif expenses[id]["category"] == "invest_sell":
+        User_Balance -= expenses[id]["amount"]
+    else: 
+        print("Couldn't delete the transaction, Something went wrong")
+    
+    expenses.pop(id)
+    return User_Balance
 
 # Implementation of user interaction flow.
 
@@ -52,7 +68,8 @@ while flag:
     print("1. Add Transaction")
     print("2. View Balance")
     print("3. Transaction History")
-    print("4. Exit")
+    print("4. Delete Transaction")
+    print("5. Exit")
 
     try:
         choice = int(input("Enter your choice: "))
@@ -90,6 +107,21 @@ while flag:
             viewTransactions(expenses)
 
         case 4:
+            # Code for Deleting Transaction
+            print("Enter the following details to delete your transaction:\n")
+            """Either take id / name & category. We will take transaction id"""
+            while True:
+                try: 
+                    delete_id = int(input("Enter the transaction id: "))
+                    if delete_id in expenses:
+                        break
+                    else:
+                        print("Id not found, try again\n")
+                except ValueError:
+                    print("You Entered wrong id. Try again..\n")
+            User_Balance = deleteTransactions(expenses, delete_id , User_Balance)
+            print("Transaction deleted successfully\n")
+        case 5:
             flag = False
         case _ :
             print("No such action to perform.")
