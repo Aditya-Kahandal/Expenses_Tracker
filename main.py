@@ -51,6 +51,26 @@ def deleteTransactions(expenses, id, User_Balance):
     expenses.pop(id)
     return User_Balance
 
+# Updation of the transaction
+
+def update_transaction(expenses, id , name, category, amount, User_Balance):
+    if expenses[id]["category"] == "income" or expenses[id]["category"] == "invest_sell":
+        temp = User_Balance - expenses[id]["amount"]
+    else:
+        temp = User_Balance + expenses[id]["amount"]
+    
+    expenses[id]["category"] = category
+    expenses[id]["amount"] = amount
+    expenses[id]["name"] = name
+
+    if category == "income" or category== "invest_sell":
+        User_Balance = temp + amount
+    else:
+        User_Balance = temp - amount
+    
+    return User_Balance
+        
+
 # Implementation of user interaction flow.
 
 flag = True
@@ -69,7 +89,8 @@ while flag:
     print("2. View Balance")
     print("3. Transaction History")
     print("4. Delete Transaction")
-    print("5. Exit")
+    print("5. Update Transaction")
+    print("6. Exit")
 
     try:
         choice = int(input("Enter your choice: "))
@@ -122,6 +143,45 @@ while flag:
             User_Balance = deleteTransactions(expenses, delete_id , User_Balance)
             print("Transaction deleted successfully\n")
         case 5:
+            # updation code.
+
+            if expenses == {}:
+                print("\nYour transaction history is empty!! You cannot update any transaction\n")
+
+            else:
+                print("\nEnter details for updating the transaction:\n")
+                while True:
+                    try:
+                        transaction_id = int(input("Enter the transaction id: "))
+                        if transaction_id in expenses:
+                            break
+                        else:
+                            print("ID not found, Try again.")
+                    except ValueError:
+                        print("You entered wrong Id, Try again")
+
+                name = input("Enter the name of Transaction: ")
+
+                while True:
+                    try:
+                        amount = int(input("Amount of Transaction: "))
+                        break
+                    except ValueError:
+                        print("Invalid input. Please Enter the correct Value")
+
+                while True:
+                    try:
+                        category = int(input("\nType of Transaction:\n1. Income / Salary / Savings \n2. Spendings / Expenses \n3. Buying Stocks / Shares. \n4. Selling Stocks / Shares. \nEnter Your Choice: "))
+                        if category > 0 and category<5: 
+                            break
+                        else:
+                            print("Invalid choice. Please enter a valid choice.")
+                            continue
+                    except ValueError:
+                        print("Invalid choice. Please enter a valid choice.")
+                User_Balance = update_transaction(expenses, transaction_id , name, transactionType[category-1], amount, User_Balance)
+            
+        case 6:
             flag = False
         case _ :
             print("No such action to perform.")
