@@ -1,89 +1,63 @@
 # Expenses Tracker Application
-"""
-Inputs And Data to Handle:
-automate: Data/Time (TimeStamp of the expense)
-inputs: name, amount, category of the expense
 
-functions needed: 
-function to collect the name, amount, category to store in a dictionary
-
-# For tracking the balance: for each expense, operate the balance by subtract or add according to category
-"""
 # Function to add expenses
-def add_expense(name, amount, category, expenses, id, User_Balance):
+def add_expense(name, amount, category, expenses, transaction_id, user_balance):
     # category validation
-    if category == "income":
-        User_Balance += amount
-    elif category == "spend":
-        User_Balance -= amount
-    elif category == "invest_buy":
-        User_Balance -= amount
-    elif category == "invest_sell":
-        User_Balance += amount
+    if category == "income" or category == "invest_sell":
+        user_balance += amount
+    elif category == "spend" or category == "invest_buy":
+        user_balance -= amount
     else: 
         print("Wrong category")
-        return id,User_Balance
-    expenses[id] = {"name": name, "amount": amount, "category": category}
+        return transaction_id,user_balance
+    expenses[transaction_id] = {"name": name, "amount": amount, "category": category}
         
-    id += 1
-    return id,User_Balance
+    transaction_id += 1
+    return transaction_id,user_balance
        
 # Function to view transaction
-def viewTransactions(history):
-    if history == {}:
+def view_transactions(history):
+    if not history:
         print("\nNo transactions made yet\n")
     else:
         print("\nYour transaction history is as follows:\n",history, "\n")
 
 # Function to delete transaction
-def deleteTransactions(expenses, id, User_Balance):
-    if expenses[id]["category"] == "income":
-        User_Balance -= expenses[id]["amount"]
-    elif expenses[id]["category"] == "spend":
-        User_Balance += expenses[id]["amount"]
-    elif expenses[id]["category"] == "invest_buy":
-        User_Balance += expenses[id]["amount"]
-    elif expenses[id]["category"] == "invest_sell":
-        User_Balance -= expenses[id]["amount"]
+def delete_transactions(expenses, transaction_id, user_balance):
+    if expenses[transaction_id]["category"] == "income" or expenses[transaction_id]["category"] == "invest_sell":
+        user_balance -= expenses[transaction_id]["amount"]
+    elif expenses[transaction_id]["category"] == "spend" or expenses[transaction_id]["category"] == "invest_buy":
+        user_balance += expenses[transaction_id]["amount"]
     else: 
         print("Couldn't delete the transaction, Something went wrong")
     
-    expenses.pop(id)
-    return User_Balance
+    expenses.pop(transaction_id)
+    return user_balance
 
 # Updation of the transaction
 
-def update_transaction(expenses, id , name, category, amount, User_Balance):
-    if expenses[id]["category"] == "income" or expenses[id]["category"] == "invest_sell":
-        temp = User_Balance - expenses[id]["amount"]
+def update_transaction(expenses, transaction_id , name, category, amount, user_balance):
+    if expenses[transaction_id]["category"] == "income" or expenses[transaction_id]["category"] == "invest_sell":
+        temp = user_balance - expenses[transaction_id]["amount"]
     else:
-        temp = User_Balance + expenses[id]["amount"]
+        temp = user_balance + expenses[transaction_id]["amount"]
     
-    expenses[id]["category"] = category
-    expenses[id]["amount"] = amount
-    expenses[id]["name"] = name
+    expenses[transaction_id]["category"] = category
+    expenses[transaction_id]["amount"] = amount
+    expenses[transaction_id]["name"] = name
 
     if category == "income" or category== "invest_sell":
-        User_Balance = temp + amount
+        user_balance = temp + amount
     else:
-        User_Balance = temp - amount
+        user_balance = temp - amount
     
-    return User_Balance
+    return user_balance
         
 
-# Implementation of user interaction flow.
 
-flag = True
-transactionType = ["income", "spend", "invest_buy", "invest_sell" ]
-id = 0
-while True:
-    try:
-        User_Balance = int(input("Enter Your Current Balance:"))
-        break
-    except ValueError:
-        print("Invalid input, Enter Your Balance")
-expenses = {}
-while flag:
+# HELPER Functions
+
+def menu_display():
     print("\n\nWhat do you want to do?")
     print("1. Add Transaction")
     print("2. View Balance")
@@ -91,6 +65,64 @@ while flag:
     print("4. Delete Transaction")
     print("5. Update Transaction")
     print("6. Exit")
+
+def get_valid_id(expenses):
+    while True:
+        try:
+            transaction_id = int(input("Enter the transaction id: "))
+            if transaction_id in expenses:
+                break
+            else:
+                print("ID not found, Try again.")
+        except ValueError:
+            print("You entered wrong Id, Try again")
+    return transaction_id
+
+def get_valid_amount():
+    while True:
+        try:
+            amount = int(input("\nAmount of Transaction:"))
+            break
+        except ValueError:
+            print("Invalid input. Please Enter the correct Value")
+    return amount
+
+def get_valid_category(transaction_type):
+    while True:
+        try:
+            category = int(input("\nType of Transaction:\n1. Income / Salary / Savings \n2. Spendings / Expenses \n3. Buying Stocks / Shares. \n4. Selling Stocks / Shares. \nEnter Your Choice: "))
+            if category > 0 and category<5: 
+                break
+            else:
+                print("Invalid choice. Please enter a valid choice.")
+                continue
+        except ValueError:
+            print("Invalid choice. Please enter a valid choice.")
+
+    return transaction_type[category-1]
+
+def transaction_info(transaction_type):
+    name = input("Transaction Name: ")
+    amount = get_valid_amount()
+    category = get_valid_category(transaction_type)
+
+    return name, amount, category
+
+# Implementation of user interaction flow.
+
+flag = True
+transaction_type = ["income", "spend", "invest_buy", "invest_sell" ]
+transaction_id = 0
+while True:
+    try:
+        user_balance = int(input("Enter Your Current Balance:"))
+        break
+    except ValueError:
+        print("Invalid input, Enter Your Balance")
+expenses = {}
+while True:
+    
+    menu_display()
 
     try:
         choice = int(input("Enter your choice: "))
@@ -101,87 +133,38 @@ while flag:
     match choice:
         case 1:
             print("\n\nTo Add a transaction, Fill the following information:")
-            name = input("\nTransaction info: ")
-            while True:
-                try:
-                    amount = int(input("\nAmount of Transaction:"))
-                    break
-                except ValueError:
-                    print("Invalid input. Please Enter the correct Value")
+            name, amount, category = transaction_info(transaction_type)
 
-            while True:
-                try:
-                    category = int(input("\nType of Transaction:\n1. Income / Salary / Savings \n2. Spendings / Expenses \n3. Buying Stocks / Shares. \n4. Selling Stocks / Shares. \nEnter Your Choice: "))
-                    if category > 0 and category<5: 
-                        break
-                    else:
-                        print("Invalid choice. Please enter a valid choice.")
-                        continue
-                except ValueError:
-                    print("Invalid choice. Please enter a valid choice.")
-            id,User_Balance = add_expense(name, amount, transactionType[category-1], expenses, id , User_Balance)
+            transaction_id,user_balance = add_expense(name, amount, category, expenses, transaction_id , user_balance)
         
         case 2: 
-            print("\n\nYour current Balance is: ", User_Balance)
+            print("\n\nYour current Balance is: ", user_balance)
 
         case 3:
-            viewTransactions(expenses)
+            view_transactions(expenses)
 
         case 4:
             # Code for Deleting Transaction
             print("Enter the following details to delete your transaction:\n")
             """Either take id / name & category. We will take transaction id"""
-            while True:
-                try: 
-                    delete_id = int(input("Enter the transaction id: "))
-                    if delete_id in expenses:
-                        break
-                    else:
-                        print("Id not found, try again\n")
-                except ValueError:
-                    print("You Entered wrong id. Try again..\n")
-            User_Balance = deleteTransactions(expenses, delete_id , User_Balance)
+            
+            delete_id = get_valid_id(expenses)
+
+            user_balance = delete_transactions(expenses, delete_id , user_balance)
             print("Transaction deleted successfully\n")
         case 5:
             # updation code.
 
-            if expenses == {}:
+            if not expenses:
                 print("\nYour transaction history is empty!! You cannot update any transaction\n")
 
             else:
                 print("\nEnter details for updating the transaction:\n")
-                while True:
-                    try:
-                        transaction_id = int(input("Enter the transaction id: "))
-                        if transaction_id in expenses:
-                            break
-                        else:
-                            print("ID not found, Try again.")
-                    except ValueError:
-                        print("You entered wrong Id, Try again")
-
-                name = input("Enter the name of Transaction: ")
-
-                while True:
-                    try:
-                        amount = int(input("Amount of Transaction: "))
-                        break
-                    except ValueError:
-                        print("Invalid input. Please Enter the correct Value")
-
-                while True:
-                    try:
-                        category = int(input("\nType of Transaction:\n1. Income / Salary / Savings \n2. Spendings / Expenses \n3. Buying Stocks / Shares. \n4. Selling Stocks / Shares. \nEnter Your Choice: "))
-                        if category > 0 and category<5: 
-                            break
-                        else:
-                            print("Invalid choice. Please enter a valid choice.")
-                            continue
-                    except ValueError:
-                        print("Invalid choice. Please enter a valid choice.")
-                User_Balance = update_transaction(expenses, transaction_id , name, transactionType[category-1], amount, User_Balance)
+                update_id = get_valid_id(expenses)
+                name, amount, category = transaction_info(transaction_type)
+                user_balance = update_transaction(expenses, update_id , name, category, amount, user_balance)
             
         case 6:
-            flag = False
+            break
         case _ :
             print("No such action to perform.")
