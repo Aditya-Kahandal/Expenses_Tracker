@@ -1,5 +1,30 @@
 # Expenses Tracker Application
 
+## Imports
+import json
+
+def save_data(expenses, transaction_id, user_balance):
+    save_dict = {
+        "history": expenses,
+        "transaction_id": transaction_id,
+        "user_balance": user_balance
+        }
+    with open("expenses_tracker.json","w") as file:
+        json.dump(save_dict,file)
+
+def load_data():
+    try:
+        with open("expenses_tracker.json","r") as file:
+            app_state = json.load(file)
+    except FileNotFoundError:
+        return ({}, 0, None)
+    new_history= {}
+    for key,value in app_state["history"].items():
+        new_key = int(key)
+        new_history[new_key] = value
+
+    return (new_history, app_state["transaction_id"], app_state["user_balance"])
+
 # Function to add expenses
 def add_expense(name, amount, category, expenses, transaction_id, user_balance):
     # category validation
@@ -112,14 +137,20 @@ def transaction_info(transaction_type):
 
 flag = True
 transaction_type = ["income", "spend", "invest_buy", "invest_sell" ]
-transaction_id = 0
-while True:
-    try:
-        user_balance = int(input("Enter Your Current Balance:"))
-        break
-    except ValueError:
-        print("Invalid input, Enter Your Balance")
-expenses = {}
+
+expenses, transaction_id, user_balance = load_data()
+
+# print(expenses)
+# print(type(list(expenses.keys())[0]))
+
+if user_balance is None:
+    while True:
+        try:
+            user_balance = int(input("Enter Your Current Balance:"))
+            break
+        except ValueError:
+            print("Invalid input, Enter Your Balance")
+
 while True:
     
     menu_display()
@@ -168,3 +199,5 @@ while True:
             break
         case _ :
             print("No such action to perform.")
+
+save_data(expenses, transaction_id, user_balance)
