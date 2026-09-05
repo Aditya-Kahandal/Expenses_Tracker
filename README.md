@@ -69,7 +69,7 @@ When the application exits:
 Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Aditya-Kahandal/Expenses_Tracker.git
 ```
 
 Navigate into the project
